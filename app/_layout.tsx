@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { MedicationsProvider } from '../context/MedicationsContext';
+import { requestLocalNotificationsPermission } from '../services/notifications';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -21,6 +22,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      // Request notification permissions when app loads
+      requestLocalNotificationsPermission().catch(error => 
+        console.error('Error requesting notification permissions:', error)
+      );
     }
   }, [loaded]);
 

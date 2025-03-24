@@ -1,34 +1,89 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Medication } from '../types/medication';
+import { scheduleMedicationNotifications, scheduleLowStockNotification, cancelMedicationNotifications } from '../services/notifications';
 
 interface MedicationsContextType {
   medications: Medication[];
-  addMedication: (medication: Omit<Medication, 'id'>) => void;
-  updateMedication: (id: string, medication: Medication) => void;
-  deleteMedication: (id: string) => void;
+  addMedication: (medication: Omit<Medication, 'id'>) => Promise<void>;
+  updateMedication: (id: string, medication: Medication) => Promise<void>;
+  deleteMedication: (id: string) => Promise<void>;
 }
 
 const MedicationsContext = createContext<MedicationsContextType | undefined>(undefined);
 
+const STORAGE_KEY = '@medications';
+
 export function MedicationsProvider({ children }: { children: React.ReactNode }) {
   const [medications, setMedications] = useState<Medication[]>([]);
 
-  const addMedication = (medication: Omit<Medication, 'id'>) => {
-    const newMedication: Medication = {
-      ...medication,
-      id: Date.now().toString(), // Simple ID generation
+  // Load medications from storage on app start
+  useEffect(() => {
+    const loadMedications = async () => {
+      try {
+        const storedMedications = await AsyncStorage.getItem(STORAGE_KEY);
+        if (storedMedications) {
+          const loadedMedications = JSON.parse(storedMedications);
+          setMedications(loadedMedications);
+          // Schedule notifications for all loaded medications
+          for (const medication of loadedMedications) {
+            await scheduleMedicationNotifications(medication);
+            await scheduleLowStockNotification(medication);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading medications:', error);
+      }
     };
-    setMedications(prev => [...prev, newMedication]);
+    loadMedications();
+  }, []);
+
+  const addMedication = async (medication: Omit<Medication, 'id'>) => {
+    try {
+      const newMedication: Medication = {
+        ...medication,
+        id: Date.now().toString(),
+      };
+      const updatedMedications = [...medications, newMedication];
+      setMedications(updatedMedications);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMedications));
+      
+      // Schedule notifications for the new medication
+      await scheduleMedicationNotifications(newMedication);
+      await scheduleLowStockNotification(newMedication);
+    } catch (error) {
+      console.error('Error adding medication:', error);
+    }
   };
 
-  const updateMedication = (id: string, updatedMedication: Medication) => {
-    setMedications(prev => 
-      prev.map(med => med.id === id ? updatedMedication : med)
-    );
+  const updateMedication = async (id: string, updatedMedication: Medication) => {
+    try {
+      const updatedMedications = medications.map(med => 
+        med.id === id ? updatedMedication : med
+      );
+      setMedications(updatedMedications);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMedications));
+      
+      // Cancel existing notifications and schedule new ones
+      await cancelMedicationNotifications(id);
+      await scheduleMedicationNotifications(updatedMedication);
+      await scheduleLowStockNotification(updatedMedication);
+    } catch (error) {
+      console.error('Error updating medication:', error);
+    }
   };
 
-  const deleteMedication = (id: string) => {
-    setMedications(prev => prev.filter(med => med.id !== id));
+  const deleteMedication = async (id: string) => {
+    try {
+      const updatedMedications = medications.filter(med => med.id !== id);
+      setMedications(updatedMedications);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMedications));
+      
+      // Cancel notifications for the deleted medication
+      await cancelMedicationNotifications(id);
+    } catch (error) {
+      console.error('Error deleting medication:', error);
+    }
   };
 
   return (

@@ -41,28 +41,20 @@ export default function AddMedicationScreen() {
   };
 
   const handleSave = () => {
-    // Validate form data
-    if (!formData.name || !formData.dosage || !formData.frequency || 
-        !formData.amountPerDose || !formData.totalAmount) {
-      Alert.alert('Error', 'Please fill in all required fields');
+    // Validate only name and dosage
+    if (!formData.name || !formData.dosage) {
+      Alert.alert('Error', 'Please fill in medication name and dosage');
       return;
     }
 
-    // Validate times
-    const validTimes = formData.times.filter(time => time.trim() !== '');
-    if (validTimes.length === 0) {
-      Alert.alert('Error', 'Please add at least one time for medication');
-      return;
-    }
-
-    // Convert string values to numbers
+    // Convert string values to numbers, use default values for optional fields
     const medication = {
       name: formData.name,
       dosage: formData.dosage,
-      frequency: parseInt(formData.frequency),
-      amountPerDose: parseInt(formData.amountPerDose),
-      totalAmount: parseInt(formData.totalAmount),
-      times: validTimes,
+      frequency: parseInt(formData.frequency) || 1,
+      amountPerDose: parseInt(formData.amountPerDose) || 1,
+      totalAmount: parseInt(formData.totalAmount) || 30,
+      times: formData.times.filter(time => time.trim() !== '') || ['08:00'],
       notes: formData.notes.trim() || undefined,
     };
 
@@ -98,34 +90,34 @@ export default function AddMedicationScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Times per Day *</Text>
+          <Text style={styles.label}>Times per Day</Text>
           <TextInput
             style={styles.input}
             value={formData.frequency}
             onChangeText={(text) => setFormData({ ...formData, frequency: text })}
-            placeholder="e.g., 3"
+            placeholder="e.g., 3 (default: 1)"
             keyboardType="numeric"
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Amount per Dose *</Text>
+          <Text style={styles.label}>Amount per Dose</Text>
           <TextInput
             style={styles.input}
             value={formData.amountPerDose}
             onChangeText={(text) => setFormData({ ...formData, amountPerDose: text })}
-            placeholder="e.g., 1"
+            placeholder="e.g., 1 (default: 1)"
             keyboardType="numeric"
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Total Amount Available *</Text>
+          <Text style={styles.label}>Total Amount Available</Text>
           <TextInput
             style={styles.input}
             value={formData.totalAmount}
             onChangeText={(text) => setFormData({ ...formData, totalAmount: text })}
-            placeholder="e.g., 30"
+            placeholder="e.g., 30 (default: 30)"
             keyboardType="numeric"
           />
         </View>
