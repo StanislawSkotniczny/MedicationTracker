@@ -46,6 +46,20 @@ export default function RootLayout() {
               presentation: 'modal'
             }} 
           />
+          <Stack.Screen 
+            name="medication-details" 
+            options={{ 
+              title: 'Medication Details',
+              headerShown: false
+            }} 
+          />
+          <Stack.Screen 
+            name="edit-medication" 
+            options={{ 
+              title: 'Edit Medication',
+              presentation: 'modal'
+            }} 
+          />
         </Stack>
       </MedicationsProvider>
       <StatusBar style="auto" />

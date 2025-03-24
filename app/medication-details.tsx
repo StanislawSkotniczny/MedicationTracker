@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMedications } from '../context/MedicationsContext';
@@ -7,7 +7,8 @@ import { useMedications } from '../context/MedicationsContext';
 export default function MedicationDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { medications } = useMedications();
+  const { medications, updateMedication, deleteMedication } = useMedications();
+  const [isEditing, setIsEditing] = useState(false);
   
   const medication = medications.find(med => med.id === id);
 
@@ -18,6 +19,32 @@ export default function MedicationDetailsScreen() {
       </View>
     );
   }
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Medication",
+      "Are you sure you want to delete this medication?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: () => {
+            deleteMedication(medication.id);
+            router.back();
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    router.push({
+      pathname: "/edit-medication",
+      params: { id: medication.id }
+    });
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -54,7 +81,7 @@ export default function MedicationDetailsScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Schedule</Text>
-          {medication.times.map((time, index) => (
+          {medication.times?.map((time, index) => (
             <View key={index} style={styles.timeItem}>
               <Ionicons name="time-outline" size={20} color="#007AFF" />
               <Text style={styles.timeText}>{time}</Text>
@@ -68,6 +95,24 @@ export default function MedicationDetailsScreen() {
             <Text style={styles.notesText}>{medication.notes}</Text>
           </View>
         )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[styles.button, styles.editButton]} 
+            onPress={handleEdit}
+          >
+            <Ionicons name="create-outline" size={20} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.button, styles.deleteButton]} 
+            onPress={handleDelete}
+          >
+            <Ionicons name="trash-outline" size={20} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -145,5 +190,33 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 10,
+    flex: 0.48,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  editButton: {
+    backgroundColor: '#4CAF50',
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
   },
 }); 
