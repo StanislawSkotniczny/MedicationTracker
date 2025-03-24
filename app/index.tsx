@@ -2,18 +2,22 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: number;
-  amountPerDose: number;
-  totalAmount: number;
-}
+import { useRouter } from 'expo-router';
+import { Medication } from '../types/medication';
+import MedicationListItem from '../components/MedicationListItem';
+import { useMedications } from '../context/MedicationsContext';
 
 export default function HomeScreen() {
-  const medications: Medication[] = [];
+  const router = useRouter();
+  const { medications } = useMedications();
+
+  const handleAddMedication = () => {
+    router.push('/add-medication');
+  };
+
+  const handleMedicationPress = (medication: Medication) => {
+    router.push(`/medication-details?id=${medication.id}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -38,15 +42,20 @@ export default function HomeScreen() {
         ) : (
           <FlatList
             data={medications}
-            renderItem={() => null}
-            keyExtractor={() => 'placeholder'}
+            renderItem={({ item }) => (
+              <MedicationListItem
+                medication={item}
+                onPress={() => handleMedicationPress(item)}
+              />
+            )}
+            keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
           />
         )}
       </View>
 
       {/* Add Medication Button */}
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddMedication}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
     </View>
