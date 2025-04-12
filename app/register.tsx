@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../config/firebase';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -26,19 +26,6 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
       await createUserWithEmailAndPassword(auth, email, password);
-      router.replace('/');
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleRegister = async () => {
-    try {
-      setLoading(true);
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
       router.replace('/');
     } catch (error: any) {
       Alert.alert('Error', error.message);
@@ -97,21 +84,6 @@ export default function RegisterScreen() {
           <Text style={styles.registerButtonText}>
             {loading ? 'Creating account...' : 'Create Account'}
           </Text>
-        </TouchableOpacity>
-
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <TouchableOpacity 
-          style={styles.googleButton}
-          onPress={handleGoogleRegister}
-          disabled={loading}
-        >
-          <Ionicons name="logo-google" size={20} color="#fff" />
-          <Text style={styles.googleButtonText}>Sign up with Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -175,34 +147,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   registerButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#ddd',
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: '#666',
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4285F4',
-    height: 48,
-    borderRadius: 8,
-    gap: 8,
-  },
-  googleButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
