@@ -6,8 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { MedicationsProvider } from '../context/MedicationsContext';
+import { AuthProvider } from '../context/AuthContext';
 import { requestLocalNotificationsPermission } from '../services/notifications';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -35,38 +35,54 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <MedicationsProvider>
-        <Stack>
-          <Stack.Screen 
-            name="index" 
-            options={{ 
-              title: 'Medication Tracker',
-              headerShown: false 
-            }} 
-          />
-          <Stack.Screen 
-            name="add-medication" 
-            options={{ 
-              title: 'Add Medication',
-              presentation: 'modal'
-            }} 
-          />
-          <Stack.Screen 
-            name="medication-details" 
-            options={{ 
-              title: 'Medication Details',
-              headerShown: false
-            }} 
-          />
-          <Stack.Screen 
-            name="edit-medication" 
-            options={{ 
-              title: 'Edit Medication',
-              presentation: 'modal'
-            }} 
-          />
-        </Stack>
-      </MedicationsProvider>
+      <AuthProvider>
+        <MedicationsProvider>
+          <Stack>
+            <Stack.Screen 
+              name="login" 
+              options={{ 
+                title: 'Sign In',
+                headerShown: false
+              }} 
+            />
+            <Stack.Screen 
+              name="register" 
+              options={{ 
+                title: 'Create Account',
+                headerShown: false
+              }} 
+            />
+            <Stack.Screen 
+              name="index" 
+              options={{ 
+                title: 'Medication Tracker',
+                headerShown: false 
+              }} 
+            />
+            <Stack.Screen 
+              name="add-medication" 
+              options={{ 
+                title: 'Add Medication',
+                presentation: 'modal'
+              }} 
+            />
+            <Stack.Screen 
+              name="medication-details" 
+              options={{ 
+                title: 'Medication Details',
+                headerShown: false
+              }} 
+            />
+            <Stack.Screen 
+              name="edit-medication" 
+              options={{ 
+                title: 'Edit Medication',
+                presentation: 'modal'
+              }} 
+            />
+          </Stack>
+        </MedicationsProvider>
+      </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

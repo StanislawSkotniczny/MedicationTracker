@@ -5,14 +5,22 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "medicationapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.medicationapp",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
+        ],
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.739488761134-ijue992iqgnm27bqehhhiea5fc836cqg"
+            ]
+          }
         ]
       }
     },
@@ -20,7 +28,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.yourcompany.medicationapp"
     },
     "web": {
       "bundler": "metro",
@@ -60,6 +69,7 @@
         "projectId": "4483776f-9444-4dfb-a90b-38c5a69b1dba"
       }
     },
-    "owner": "stanirl"
+    "owner": "stanirl",
+    "scheme": "medicationapp"
   }
 }
